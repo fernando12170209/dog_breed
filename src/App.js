@@ -31,7 +31,8 @@ const formatResult=({className,probability})=>{
   
 };
 
-function App() {
+const App = () => {
+  //Function App(){
   //dispatch permite disparar el evento definico 
   const [state,dispatch]=useReducer(reducer,stateMachine.initial); 
   const [model,setModel]=useState(null);

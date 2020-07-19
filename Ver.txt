@@ -53,7 +53,7 @@ just run the following command :
 
 npm run deploy
 
-//SUbir nuevamente los cambios
+//SUbir nuevamente los cambios y los sube al master
 6- commit and push your commit to GitHub. Optionally
 
 git add .
