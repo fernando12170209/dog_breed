@@ -1,0 +1,193 @@
+SUBIR A github
+//7:35 en SUBIR A GITHUB
+
+git remote add origin https://github.com/fernando12170209/dogg_bredd.git
+git push -u origin master
+
+
+Procedure :
+
+1- First create a repository named my-app using create-react-app.
+
+npm init react-app my-app
+
+2- We need to install GitHub Pages package as a dev-dependency.
+
+cd my-app
+npm install gh-pages --save-dev
+
+3- Add properties to package.json file.
+
+The first property we need to add at the top level homepage second we will define this as a string and the value will be "http://{username}.github.io/{repo-name}" {username} is your GitHub username, and {repo-name} is the name of the GitHub repository you created it will look like this :
+
+"homepage": "http://yuribenjamin.github.io/my-app"
+
+Second in the existing scripts property we to need to add predeploy and deploy.
+
+"scripts": {
+//...
+"predeploy": "npm run build",
+"deploy": "gh-pages -d build"
+}
+
+package.json example
+
+4- Create a Github repository and initialize it and add it as a remote in your local git repository.
+
+Now, create a remote GitHub repository with your app name and go back initialize this
+git init
+add it as remote
+git remote add origin git@github.com:Yuribenjamin/my-app.git
+
+5- Now deploy it to GitHub Pages.
+
+just run the following command :
+
+npm run deploy
+
+//SUbir nuevamente los cambios
+6- commit and push your commit to GitHub. Optionally
+
+git add .
+git commit -m "Your awesome message"
+git push origin master
+
+//Para ver los cambios de produccion
+npm run deploy
+
+
+Video Fuente
+https://www.youtube.com/watch?v=nxAsWjSc-94
+https://github.com/jonnyk20/dogscope-react
+
+//Mobilenet
+npm i @tensorflow-models/mobilenet
+
+1.CAmbiar App.Css
+imput es invisble para el usuario pero util para DOM
+2.Solo devolver un div vacio en App.js(eliminar el restos)
+
+Estados del aplicativo (ver App.js const stateMachine)
+Transiciones entre eventos
+Inicializa
+Carga Modelo
+    Espera a Carga
+    Carga completa
+    Indentifica
+    Devuelve los resultados en pantalla (regresa a Espera a Carga)
+
+Ver los metodos de cargar el modelo Mobilenet
+
+luego de definir la const reducer, el boton muestra el estado del aplicativo
+    <div className="App">
+      <button
+      onClick={()=>dispatch('next')}
+      > {state}</button>
+    </div>
+
+-----------------
+-----------------
+import React ,{useReducer,useState ,useRef} from 'react'; //useReducer para usar reducer
+import * as mobilnet from '@tensorflow-models/mobilenet'
+import './App.css';
+//Objeto estate machine, escibo reglas para definir cada transicion
+  //en el objeto on declaro el potencial evento a seguir
+    //Puedo agregar propiedades a cada estado =>initial:{ on: { next:'loadingModel'}},
+const stateMachine={
+  initial:'initial',
+  states:{
+    initial:{ on: { next:'loadingModel'}},
+    loadingModel:{ on:{next:'awaitingUpload'}},
+    awaitingUpload:{ on:{next:'ready'}},
+    ready:{ on:{ next:'classifying'},showImage:true},
+    classifying :{ on:{ next:'complete'}},
+    complete:{ on:{next:'awaitingUpload'},showImage:true}
+  }
+  
+}
+//Agregar la funcionalidad que evento se ejecuta(redux)
+//Reducer toma el estado actual y retorna el estado basado en que evento se encuentra
+//Carga el siguiente evento
+const reducer = (currentstate, event) => stateMachine.states[currentstate].on[event] || stateMachine.initial;
+
+const formatResult=({className,probability})=>{
+  <li key={className } >
+    {`${className}: %${(probability*100).toFixed(2)}`}
+
+  </li>
+}
+
+function App() {
+  //dispatch permite disparar el evento definico 
+  const [state,dispatch]=useReducer(reducer,stateMachine.initial); 
+  const [model,setModel]=useState(null);
+  const [imageUrl,setImageUrl]=useState(null);
+  const [results, setResults]=useState([]);
+  
+  //imagen que se carga al modelo
+  const imageRef=useRef();
+  const inputRef=useRef();
+
+  const next=()=>dispatch('next');
+  //esta funcion es asincrona por definicon
+  const loadModel= async ()=>{
+    //Pasar manualmente de estado cuando termine de cargar el modelo
+    next();
+    const mobilenetModel=await mobilnet.load();
+    setModel(mobilenetModel);
+    next();
+  }
+ 
+  const handleUpload =event =>{
+    const {files}=event.target;
+    if(files.length>0){
+      //Tomar la primea foto
+      const url= URL.createObjectURL(files[0]);
+      setImageUrl(url);
+      //
+      next();
+    }
+  }
+
+  //clasificar
+  const identify=async()=>{
+    next();
+    const results=await model.classify(imageRef.current);
+    console.log({results})
+    next();
+  }
+
+  //Especifica que se requiere ser mostrado al presionar el boton en render
+  const buttonProps={
+    
+    initial:{ text:'Load Model', action: loadModel},
+    loadingModel:{ text:'Loading Model ...', action:()=>{}},
+    awaitingUpload:{ text:'Upload Photo', action:()=>inputRef.current.click()},
+    ready:{  text:'Identify', action: identify },
+    classifying :{ text:'Identifying', action:()=>{}},
+    complete:{ text:'Reset', action:()=>{}}
+  }
+
+  //false as default hasta que cargue algo no se muestra <img>
+  const {showImage=false}=stateMachine.states[state];
+
+
+  return (
+    <div>
+      {showImage&&<img  src={imageUrl} alt="upload-preview" ref={imageRef} ></img>}
+      <input type='file' accept="image/*" capture="camara" ref={inputRef} onChange={handleUpload} ></input>
+      <button onClick={buttonProps[state].action}>{buttonProps[state].text}</button>
+    {/*<div className="App">
+      <button
+      onClick={()=>dispatch('next')}
+      > {state}</button>
+  </div>*/}
+  </div>
+  );
+}
+
+export default App;
+
+
+
+
