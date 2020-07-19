@@ -1,7 +1,15 @@
-SUBIR A github
-//7:35 en SUBIR A GITHUB
+Provide an image to this IA react app and you will look what kind of dog do you have ... is not magic trust me :D
+-----------
+Solo muestra el aplicativo ejecutandose en modo produccion
+git add .
+git remote rm origin
+git remote add origin https://github.com/fernando12170209/dog_breed.git
 
-git remote add origin https://github.com/fernando12170209/dogg_bredd.git
+-----------
+PAra subir el codigo fuente visible a todo el que entre a github
+git add .
+git remote rm origin
+git remote add origin https://github.com/fernando12170209/dog_breed.git
 git push -u origin master
 
 
